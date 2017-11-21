@@ -7,8 +7,8 @@ android {
         applicationId "com.xiaozi.android.firebase"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 2017103114
-        versionName "0.0.1"
+        versionCode 2017111411
+        versionName "0.0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
