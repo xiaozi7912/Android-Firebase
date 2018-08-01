@@ -1,5 +1,6 @@
 package com.xiaozi.android.firebase;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +12,11 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.xiaozi.framework.libs.BaseActivity;
 import com.xiaozi.framework.libs.utils.Logger;
+
+import org.json.JSONObject;
+
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
 
 public class MainActivity extends BaseActivity {
     private TextView mClinicIdTextView = null;
@@ -45,6 +51,29 @@ public class MainActivity extends BaseActivity {
                         Logger.i(LOG_TAG, "getDynamicLink onFailure");
                     }
                 });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Branch.getInstance().initSession(new Branch.BranchReferralInitListener() {
+            @Override
+            public void onInitFinished(JSONObject referringParams, BranchError error) {
+                Logger.i(LOG_TAG, "onInitFinished");
+                Logger.d(LOG_TAG, "onInitFinished referringParams : " + referringParams);
+                Logger.d(LOG_TAG, "onInitFinished error : " + error);
+                if (error == null) {
+                    mClinicId = referringParams.optString("hisid");
+                    mClinicIdTextView.setText(mClinicId);
+                } else {
+                }
+            }
+        }, getIntent().getData(), mActivity);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
     }
 
     @Override
