@@ -6,10 +6,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.xiaozi.framework.libs.BaseActivity;
 import com.xiaozi.framework.libs.utils.Logger;
 
@@ -65,7 +69,6 @@ public class MainActivity extends BaseActivity {
                 if (error == null) {
                     mClinicId = referringParams.optString("hisid");
                     mClinicIdTextView.setText(mClinicId);
-                } else {
                 }
             }
         }, getIntent().getData(), mActivity);
@@ -80,6 +83,14 @@ public class MainActivity extends BaseActivity {
     protected void initialize() {
         super.initialize();
         Logger.init(BuildConfig.DEBUG);
+        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+            @Override
+            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                Logger.i(LOG_TAG, "onComplete");
+                Logger.d(LOG_TAG, "onComplete getToken : " + task.getResult().getToken());
+            }
+        });
+
     }
 
     @Override

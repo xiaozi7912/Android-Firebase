@@ -1,9 +1,12 @@
 package com.xiaozi.android.firebase;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 
@@ -27,6 +30,13 @@ public class SuperMessagingService extends FirebaseMessagingService {
     private final String DATA_KEY_UID = "uuid";
     private final String DATA_KEY_ACT = "action";
     private final String DATA_KEY_TIMESTAMP = "timestamp";
+
+    @Override
+    public void onNewToken(String token) {
+        super.onNewToken(token);
+        Logger.i(LOG_TAG, "onNewToken");
+        Logger.d(LOG_TAG, "onNewToken token : " + token);
+    }
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -63,20 +73,31 @@ public class SuperMessagingService extends FirebaseMessagingService {
 
     private void sendNotification(RemoteMessage remoteMessage) {
         Logger.i(LOG_TAG, "sendNotification");
-        RemoteMessage.Notification notification = remoteMessage.getNotification();
         Map<String, String> data = remoteMessage.getData();
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        String CHANNEL_ID = "my_channel_01";
+        CharSequence name = "my_channel";
+        String Description = "This is my channel";
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+            mChannel.setDescription(Description);
+            mChannel.enableLights(true);
+            mChannel.setLightColor(Color.RED);
+            notificationManager.createNotificationChannel(mChannel);
+        }
+
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(mContext.getString(R.string.app_name))
                 .setContentText(data.toString())
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(0, notificationBuilder.build());
     }
 }
